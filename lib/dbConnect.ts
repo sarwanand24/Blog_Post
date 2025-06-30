@@ -1,21 +1,44 @@
-import mongoose from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
-if (!MONGODB_URI) throw new Error('Please define MONGODB_URI in .env.local');
+if (!MONGODB_URI) {
+  throw new Error('Please define MONGODB_URI in .env.local');
+}
 
-const cached = (global as any).mongoose || { conn: null, promise: null };
+// ✅ Declare global extension
+declare global {
+  var mongoose: {
+    conn: Connection | null;
+    promise: Promise<Connection> | null;
+  } | undefined;
+}
+
+// ✅ Initialize only once
+const globalMongoose = globalThis as typeof globalThis & {
+  mongoose: {
+    conn: Connection | null;
+    promise: Promise<Connection> | null;
+  };
+};
+
+if (!globalMongoose.mongoose) {
+  globalMongoose.mongoose = { conn: null, promise: null };
+}
+
+const cached = globalMongoose.mongoose;
 
 export async function dbConnect() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-    }).then((mongoose) => mongoose);
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {
+        bufferCommands: false,
+      })
+      .then((mongoose) => mongoose.connection);
   }
 
   cached.conn = await cached.promise;
-  (global as any).mongoose = cached;
   return cached.conn;
 }
