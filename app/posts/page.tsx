@@ -3,6 +3,13 @@ import { dbConnect } from '@/lib/dbConnect';
 import Post from '@/models/Post';
 import Link from 'next/link';
 
+interface Post {
+  _id: string;
+  title: string;
+  slug: string;
+  createdAt: string | Date;
+}
+
 export default async function AllPostsPage() {
   await dbConnect();
   const posts = await Post.find().sort({ createdAt: -1 });
@@ -21,7 +28,7 @@ export default async function AllPostsPage() {
           </div>
         ) : (
           <ul className="space-y-6">
-            {posts.map((post: any) => (
+            {posts.map((post: Post) => (
               <li
                 key={post._id}
                 className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition duration-200"

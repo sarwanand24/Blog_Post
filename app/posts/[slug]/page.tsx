@@ -3,10 +3,17 @@ import Post from '@/models/Post';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
+interface Post {
+  _id: string;
+  title: string;
+  slug: string;
+  createdAt: string;
+}
+
 export async function generateStaticParams() {
   await dbConnect();
   const posts = await Post.find({}, 'slug');
-  return posts.map((post: any) => ({ slug: post.slug }));
+  return posts.map((post: Post) => ({ slug: post.slug }));
 }
 
 
