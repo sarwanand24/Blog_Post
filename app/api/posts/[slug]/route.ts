@@ -3,23 +3,25 @@ import { dbConnect } from '@/lib/dbConnect';
 import Post from '@/models/Post';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, context: { params: { slug: string } }) {
+// ✅ GET Handler
+export async function GET(req: NextRequest, context: Promise<{ params: { slug: string } }>) {
+  const { params } = await context;
   await dbConnect();
-  const slug = context.params.slug;
 
-  const post = await Post.findOne({ slug });
+  const post = await Post.findOne({ slug: params.slug });
   if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   return NextResponse.json({ post });
 }
 
-export async function PUT(req: NextRequest, context: { params: { slug: string } }) {
+// ✅ PUT Handler
+export async function PUT(req: NextRequest, context: Promise<{ params: { slug: string } }>) {
+  const { params } = await context;
   await dbConnect();
-  const { title, content } = await req.json();
-  const slug = context.params.slug;
 
+  const { title, content } = await req.json();
   const post = await Post.findOneAndUpdate(
-    { slug },
+    { slug: params.slug },
     { title, content },
     { new: true }
   );
@@ -27,10 +29,11 @@ export async function PUT(req: NextRequest, context: { params: { slug: string } 
   return NextResponse.json({ post });
 }
 
-export async function DELETE(req: NextRequest, context: { params: { slug: string } }) {
+// ✅ DELETE Handler
+export async function DELETE(req: NextRequest, context: Promise<{ params: { slug: string } }>) {
+  const { params } = await context;
   await dbConnect();
-  const slug = context.params.slug;
 
-  await Post.findOneAndDelete({ slug });
+  await Post.findOneAndDelete({ slug: params.slug });
   return NextResponse.json({ success: true });
 }
