@@ -3,23 +3,22 @@ import Post from '@/models/Post';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
-interface Post {
-  _id: string;
-  title: string;
-  slug: string;
-  createdAt: string;
+interface PageParams {
+  params: Promise<{ slug: string }>;
 }
 
+// ✅ Updated generateStaticParams (no change needed here)
 export async function generateStaticParams() {
   await dbConnect();
   const posts = await Post.find({}, 'slug');
-  return posts.map((post: Post) => ({ slug: post.slug }));
+  return posts.map((post: { slug: string }) => ({ slug: post.slug }));
 }
 
-
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+// ✅ UPDATED generateMetadata to await `params`
+export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  const { slug } = await params;
   await dbConnect();
-  const post = await Post.findOne({ slug: params.slug });
+  const post = await Post.findOne({ slug });
   if (!post) return { title: 'Post Not Found' };
 
   return {
@@ -28,9 +27,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
+// ✅ UPDATED main component to await `params`
+export default async function PostPage({ params }: PageParams) {
+  const { slug } = await params;
   await dbConnect();
-  const post = await Post.findOne({ slug: params.slug });
+  const post = await Post.findOne({ slug });
 
   if (!post) return notFound();
 
