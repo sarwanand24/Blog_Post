@@ -1,8 +1,15 @@
 'use client';
 
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
 import './quillCustom.css'; // ⬅️ Add this line for custom styles
+
+import dynamic from 'next/dynamic';
+
+// ✅ Dynamically import react-quill with SSR disabled
+const ReactQuill = dynamic(() => import('react-quill-new'), {
+  ssr: false,
+});
+
+import 'react-quill-new/dist/quill.snow.css';
 
 type Props = {
   value: string;
