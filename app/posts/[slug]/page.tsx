@@ -2,7 +2,6 @@ import { dbConnect } from '@/lib/dbConnect';
 import Post from '@/models/Post';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { use } from 'react'; 
 
 interface Post {
   _id: string;
